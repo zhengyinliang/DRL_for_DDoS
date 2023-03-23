@@ -18,6 +18,7 @@ from slice import Slice
 inputs = InputConstants.Inputs()
 
 def event():
+    random.seed(1)
     '''
     input: null
     output: slice event list [time, arrive/leave, slice]

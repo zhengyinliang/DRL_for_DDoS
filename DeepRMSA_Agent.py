@@ -170,6 +170,7 @@ class DeepRMSA_Agent():
                 episode_step_count = 0
                       
                 num_blocks = 0
+                random.seed(1)
                 # my env
                 s = self.env.reset()
                 top = self.env.top
