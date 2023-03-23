@@ -1,3 +1,9 @@
+import numpy as np
+import tensorflow as tf
+import random
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 import sys,os
 curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
@@ -9,7 +15,6 @@ import os
 from random import choice
 from time import sleep
 from time import time
-import tensorflow as tf
 import struct
 from collections import defaultdict
 from AC_Net import AC_Net
@@ -25,11 +30,13 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 # -----------------------------------------------------------
 
-n_actions = 3
+
+
+n_actions = 155
 
 # we do not input ttl
-x_dim_p = 162    # node number
-x_dim_v = 162
+x_dim_p = 55    # node number
+x_dim_v = 55
 num_layers = 5
 layer_size = 128
 regu_scalar = 1e-4

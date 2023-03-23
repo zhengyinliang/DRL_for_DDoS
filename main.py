@@ -4,7 +4,12 @@
 2、设定切片属性，用业务生成器确定动态的业务
 3、按业务进行资源分配
 '''
+import numpy as np
+import tensorflow as tf
 import random
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 import graph
 import event
 import functions as fun
@@ -15,9 +20,9 @@ import copy
 
 if __name__ == '__main__':
 #创建top，网路图G
+    #增加一个traffic load 的值迭代后续，传入event
     sliceList = event.event()
     for ep in range(3):
-        random.seed(8888888)
         print('第', ep ,'轮') 
         sliceDic = {}  # 记录slice 对象
         top = graph.topology()
@@ -30,6 +35,8 @@ if __name__ == '__main__':
         # mark block befor Dos
         bpOfNodeBeforeDos = 0
         bpOfBwBeforeDos = 0
+
+        count_leave = 0
 
         while not eventQuene.empty():
             next_item = eventQuene.get()
@@ -69,6 +76,7 @@ if __name__ == '__main__':
             #如果业务离开
             elif next_item[1] == 'leave':
                 slice = next_item[2]
+                count_leave += 1
                 #判断业务是否部署， 是则释放，否责跳过
                 str = "slice %d 业务离开，开始释放切片资源" %slice.id
                 #print(str)
@@ -129,14 +137,14 @@ if __name__ == '__main__':
         print("totalLoss:",glbReward)
         print('top.blockLoss:',top.blockLoss)
         print('top.migLoss:',top.migLoss)
-        print('dosBlock: ',top.blockForDos/top.totalSliceNumDosed)
+#        print('dosBlock: ',top.blockForDos/top.totalSliceNumDosed)
         print('bpOfDosForNode :',top.bpOfDosForNode)
         print('bpOfDosForBW :',top.bpOfDosForBW)
 
-        migProbal1 = (top.l1MigNumber+top.l1MigNumberMn) /top.l1TotalNumber
-        migProbal2 = (top.l2MigNumber+top.l2MigNumberMn) /top.l2TotalNumber
-        migProbal3 = (top.l3MigNumber+top.l3MigNumberMn) /top.l3TotalNumber
-        migProbal4 = (top.l4MigNumber+top.l4MigNumberMn) /top.l4TotalNumber
+        # migProbal1 = (top.l1MigNumber+top.l1MigNumberMn) /top.l1TotalNumber
+        # migProbal2 = (top.l2MigNumber+top.l2MigNumberMn) /top.l2TotalNumber
+        # migProbal3 = (top.l3MigNumber+top.l3MigNumberMn) /top.l3TotalNumber
+        # migProbal4 = (top.l4MigNumber+top.l4MigNumberMn) /top.l4TotalNumber
 
         print('l1_MigNumberAe: ', top.l1MigNumber)
         print('l2_MigNumberAe: ', top.l2MigNumber)
@@ -153,10 +161,10 @@ if __name__ == '__main__':
         print('l3_TotalNumber: ', top.l3TotalNumber)
         print('l4_TotalNumber: ', top.l4TotalNumber)
 
-        print('migProbal1:',migProbal1)
-        print('migProbal2:',migProbal2)
-        print('migProbal3:',migProbal3)
-        print('migProbal4:',migProbal4)
+        # print('migProbal1:',migProbal1)
+        # print('migProbal2:',migProbal2)
+        # print('migProbal3:',migProbal3)
+        # print('migProbal4:',migProbal4)
 
         #print('flag :',top.flag)
         print('l1BpNumber :',top.l1BpNumber)

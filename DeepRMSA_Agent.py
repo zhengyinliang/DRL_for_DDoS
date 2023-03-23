@@ -1,4 +1,10 @@
 from __future__ import division
+import numpy as np
+import tensorflow as tf
+import random
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 from collections import defaultdict
 import struct
 import types
@@ -6,7 +12,6 @@ import string
 import numpy as np
 import math
 import copy
-import random
 import datetime
 from AC_Net import AC_Net
 import threading
@@ -166,7 +171,6 @@ class DeepRMSA_Agent():
                       
                 num_blocks = 0
                 # my env
-                random.seed(8888888)
                 s = self.env.reset()
                 top = self.env.top
                 G = self.env.G
@@ -215,11 +219,14 @@ class DeepRMSA_Agent():
                                 for index in range(len(sliceList)):
                                     #state
                                     Input_feature = []
+                                    ep_t = sliceList[index]
+
+                                    # check in
+                                    self.env.set_slice(ep_t)
                                     Input_feature = self.env._get_state()
                                     Input_feature = np.array(Input_feature)
                                     Input_feature = np.reshape(np.array(Input_feature), (1, self.x_dim_p))
 
-                                    ep_t = sliceList[index]
 
                                     blocking = 0
 
@@ -422,18 +429,18 @@ class DeepRMSA_Agent():
                     #print('Action Distribution', actionss.count(0)/len(actionss))
                     #print('Mean Resource Utilization =', np.mean(resource_util))
                     # store value prediction
-                    fp = open('./res/value.dat', 'a')
+                    fp = open('./value.dat', 'a')
                     fp.write('%f\n' % np.mean(episode_values))
                     fp.close()
                     # store value loss
-                    fp = open('./res/value_loss.dat', 'a')
+                    fp = open('./value_loss.dat', 'a')
                     fp.write('%f\n' % float(mean_value_losss))
                     fp.close()
                     # store policy loss
-                    fp = open('./res/policy_loss.dat', 'a')
+                    fp = open('./policy_loss.dat', 'a')
                     fp.write('%f\n' % float(mean_policy_loss))
                     fp.close()
                     # store entroy
-                    fp = open('./res/entropy.dat', 'a')
+                    fp = open('./entropy.dat', 'a')
                     fp.write('%f\n' % float(mean_entropy))
                     fp.close()

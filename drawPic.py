@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
-
+import numpy as np
+import tensorflow as tf
+import random
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 
 name_list1=['DosBP','migLoss','blockLoss','reward']
 
@@ -14,7 +19,7 @@ def draw(name_list,src,type):
     Ylist_entro = []
     Ylist_migLoss = []
     for name in name_list:
-        f = open(r'./res/{}.dat'.format(name), encoding='utf-8')
+        f = open(r'./{}.dat'.format(name), encoding='utf-8')
         if name==name_list[0]:
             for line in f:
                 s = line.strip().split('\t')

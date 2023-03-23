@@ -1,5 +1,9 @@
+import numpy as np
+import tensorflow as tf
 import random
-random.seed(99999)
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 '''
 输出：拓扑
 '''

@@ -1,8 +1,11 @@
 import InputConstants
 input = InputConstants.Inputs()
+import numpy as np
+import tensorflow as tf
 import random
-random.seed(88888)
-
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 class Slice:
     '''
     切片属性
@@ -15,9 +18,9 @@ class Slice:
         # if self.bbbb < 1:
         #     self.type = 1
         # else: self.type = 0
-        #self.type = random.randint(0,2)
+        self.type = random.randint(0,1)
         #self.type = 1  # urllc 
-        self.type = 0
+        #self.type = 0
         flag = self.type
         self.aau = input.aauNums[flag]
         self.resource = input.resoucers[flag]

@@ -1,15 +1,19 @@
 from __future__ import division
 import numpy as np
 import tensorflow as tf
-from collections import deque
 import random
-import string
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
+
+from collections import deque
+
 import tensorflow.contrib.slim as slim
 import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-np.random.seed(1)
-tf.set_random_seed(1)
+
+
 
 class AC_Net:
 

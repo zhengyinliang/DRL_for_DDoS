@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
-
+import numpy as np
+import tensorflow as tf
+import random
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 
 name_list=['BP','entropy','policy_loss','value_loss']
 Ylist_bp = []
@@ -8,7 +13,7 @@ Ylist_Vloss = []
 Ylist_entro = []
 for name in name_list:
 
-    f = open(r'./res/{}.dat'.format(name), encoding='utf-8')
+    f = open(r'./{}.dat'.format(name), encoding='utf-8')
     if name==name_list[0]:
 
         for line in f:

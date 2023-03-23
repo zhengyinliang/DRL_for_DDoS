@@ -5,7 +5,12 @@ import copy
 import InputConstants
 import numpy as np
 import random
-random.seed(88888)
+import numpy as np
+import tensorflow as tf
+import random
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 
 from queue import PriorityQueue
 from slice import Slice
@@ -13,7 +18,6 @@ from slice import Slice
 inputs = InputConstants.Inputs()
 
 def event():
-    random.seed(999999)
     '''
     input: null
     output: slice event list [time, arrive/leave, slice]

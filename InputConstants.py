@@ -6,6 +6,11 @@ Created on zhengyin liang 12 2021
 @author: liang
 """
 import numpy as np
+import tensorflow as tf
+import random
+np.random.seed(1)
+random.seed(1)
+tf.set_random_seed(1)
 
 class Inputs:
     #eMBB, uRLLC, mMTC
@@ -32,7 +37,7 @@ class Inputs:
     vmNumeberPerServer = 10
     aeNum = 2
     mnNum = 6
-    meNum = 60
+    meNum = 32
     serverNumAE  = np.ones([aeNum,vmNumeberPerServer]) * VMCapability
     serverNumMN = np.ones([mnNum,vmNumeberPerServer]) * VMCapability
     serverNumME = np.ones([meNum,vmNumeberPerServer]) * VMCapability
