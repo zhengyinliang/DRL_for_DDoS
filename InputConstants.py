@@ -19,7 +19,7 @@ class Inputs:
     aauNums = (1,1,2)
     resoucers = [[20,10,5],[4,2,1],[4,4,2]]
     transLatency = [[0.1,1,20],[0.05,0.05,0.5],[0.25,10,10]]
-    bandWidth = [[25,10,10],[4,1,1],[4,1,1]]
+    bandWidth = [[25,15,15],[4,1,1],[4,1,1]]
     #isolation = (1,2,3,4)
     #reliability = (99,99.9,99.99,99.999)
     linkLatency = 0.005
@@ -60,7 +60,7 @@ class Inputs:
     nodeSlice[200] = {} 
 
     serviceRate = 1
-    trafficLoad = 700
+    trafficLoad = 500
     # 5000 500 1000
     sliceNum = 2000
     markBlock = 0
@@ -72,7 +72,7 @@ class Inputs:
     DosStrength = 0
 
     # 是否统计 攻击 后续切片影响
-    countAfterDos = True
+    countAfterDos = False
 
     # 已经到达的切片
     sliceArrived = 1000

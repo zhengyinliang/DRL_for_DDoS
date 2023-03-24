@@ -159,9 +159,10 @@ class DeepRMSA_Agent():
         print ('Starting ' + self.name)
         with sess.as_default(), sess.graph.as_default():    
             
-            total_step = 1
+            total_step = 0
             markCount = 0
             while not coord.should_stop():
+                total_step+=1
                 mean_value_losss = 0
                 mean_policy_loss = 0
                 mean_entropy = 0

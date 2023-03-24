@@ -44,7 +44,7 @@ regu_scalar = 1e-4
 max_cpu = 4
 
 gamma = 0.95 # penalty on future reward
-batch_size = 20 # probably smaller value, e.g., 50, would be better for higher blocking probability (see JLT)
+batch_size = 50 # probably smaller value, e.g., 50, would be better for higher blocking probability (see JLT)
 total_epoNum=5000
 
 load_model = False#True

@@ -18,7 +18,10 @@ class Slice:
         # if self.bbbb < 1:
         #     self.type = 1
         # else: self.type = 0
-        self.type = random.randint(0,1)
+        self.rd = random.randint(0,2)
+        if self.rd == 0:
+            self.type = 1
+        else: self.type = 0
         #self.type = 1  # urllc 
         #self.type = 0
         flag = self.type
