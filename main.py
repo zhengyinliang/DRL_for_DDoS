@@ -23,6 +23,7 @@ if __name__ == '__main__':
     #增加一个traffic load 的值迭代后续，传入event
     sliceList = event.event()
     for ep in range(3):
+        random.seed(1)
         print('第', ep ,'轮') 
         sliceDic = {}  # 记录slice 对象
         top = graph.topology()

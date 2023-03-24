@@ -171,6 +171,7 @@ class DeepRMSA_Agent():
                       
                 num_blocks = 0
                 # my env
+                random.seed(1)
                 s = self.env.reset()
                 top = self.env.top
                 G = self.env.G

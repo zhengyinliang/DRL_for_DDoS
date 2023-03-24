@@ -59,3 +59,38 @@ def draw(name_list,src,type):
 draw(name_list1,src,"loss")
 draw(name_list2,src,"mig")
 draw(name_list3,src,"bp")
+
+# -*- coding: utf-8 -*-
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
+name_list = ['MN_1', 'MN_2', 'MN_4', 'MN_5','ME']
+num_list = [4, 7, 6, 6, 11]
+num_list1 = [4, 5, 7, 5, 10]
+plt.bar(range(len(num_list)), num_list, label='uRLLC', fc=sns.xkcd_rgb["medium purple"],width=0.5)
+plt.bar(range(len(num_list)), num_list1, bottom=num_list, label='eMBB', tick_label=name_list, fc=sns.xkcd_rgb["blue"],width=0.5)
+my_y_ticks = np.arange(0, 25, 5)
+plt.yticks(my_y_ticks)
+plt.xlabel("node")
+plt.ylabel("migrate slice number")
+plt.legend()
+#plt.show()
+plt.savefig("./"+"basefenbu")
+
+
+name_list = ['MN_1', 'MN_2', 'MN_4', 'MN_5','ME']
+num_list = [6, 5, 5, 8, 11]
+
+num_list1 = [4, 8, 9, 4, 9]
+
+plt.bar(range(len(num_list)), num_list, label='uRLLC', fc=sns.xkcd_rgb["medium purple"],width=0.5)
+plt.bar(range(len(num_list)), num_list1, bottom=num_list, label='eMBB', tick_label=name_list, fc=sns.xkcd_rgb["blue"],width=0.5)
+my_y_ticks = np.arange(0, 25, 5)
+plt.yticks(my_y_ticks)
+plt.xlabel("node")
+plt.ylabel("migrate slice number")
+
+plt.legend()
+#plt.show()
+plt.savefig("./"+"rl_fenbu")
