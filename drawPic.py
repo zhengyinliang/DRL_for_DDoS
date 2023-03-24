@@ -10,7 +10,6 @@ name_list1=['DosBP','migLoss','blockLoss','reward']
 
 name_list3 = ['bpBeforeDos','DosBP','bpAfterDos','blockLoss']
 
-name_list2=['migProbal1','migProbal2','migProbal3','migProbal4']
 src = 'test21'
 
 def draw(name_list,src,type): 
@@ -57,5 +56,5 @@ def draw(name_list,src,type):
     #plt.show()
 
 draw(name_list1,src,"loss")
-draw(name_list2,src,"mig")
+
 draw(name_list3,src,"bp")
