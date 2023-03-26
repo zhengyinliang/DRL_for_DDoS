@@ -13,10 +13,11 @@ import numpy as np
 import copy
 inputs = InputConstants.Inputs()
 # action dic
+import copy
 ACTION = []
 count = 0
-temp = [-1, -1, -1]
 
+temp = [-1, -1, -1]
 for i in range(1,6):
     temp[0] = i
     for j in range(1,6):
@@ -24,18 +25,46 @@ for i in range(1,6):
         for k in range(1, 6):
             temp[2] = k
             ACTION.append(copy.copy(temp))
+            count+=1
+
+
 temp = [-1, -1, -1]
 for i in range(1,6):
     temp[1] = i
     for j in range(1, 6):
         temp[2] = j
         ACTION.append(copy.copy(temp))
+        count += 1
+
+
 temp = [-1, -1, -1]
 for i in range(1,6):
     temp[2] = i
     ACTION.append(copy.copy(temp))
+    count += 1
+temp = [-1, -1, -1]
 
-ACTION_DIC = {1:101,2:102,3:200,4:104,5:105}
+
+for i in range(1,6):
+    temp[1] = i
+    ACTION.append(copy.copy(temp))
+    count += 1
+
+temp = [-1, -1, -1]
+for i in range(1,6):
+    temp[0] = i
+    ACTION.append(copy.copy(temp))
+    count += 1
+
+temp = [-1, -1, -1]
+for i in range(1,6):
+    temp[0] = i
+    for j in range(1, 6):
+        temp[1] = j
+        ACTION.append(copy.copy(temp))
+        count += 1
+
+ACTION_DIC = {1: 101, 2: 102, 3: 200, 4: 104, 5: 105}
 
 
 
@@ -739,9 +768,10 @@ def migrate_rl(G, top, tempSlice,dosId,mnOrAe,action):
         serverMEC = None
         bpFlag = 0
         for nodeMEC in mecNodeList:
-            if nodeMEC != dosId:
-                serverMEC, pathbront, lightback , bpFlag=  nodeLinkSearch(exisNode, exisWave, pathStart ,G, top, nodeMEC, tempSlice, 2, tempSlice.bandwidth[2])
-                if serverMEC: break
+            if nodeMEC is not None:
+                if nodeMEC != dosId:
+                    serverMEC, pathbront, lightback , bpFlag=  nodeLinkSearch(exisNode, exisWave, pathStart ,G, top, nodeMEC, tempSlice, 2, tempSlice.bandwidth[2])
+                    if serverMEC: break
         if not serverMEC:
             # 阻塞MEC
             markBp(top,bpFlag,tempSlice)
@@ -1235,7 +1265,7 @@ def countReward(blockOrNot, migOrNot, slice, currentTime):
     rwd = 0.5*expNum(cr) + 0.5*expNum(bw)
     if blockOrNot == 0:
         # 阻塞
-        res = -rwd
+        res = -rwd*10
     else:
         res = rwd
 

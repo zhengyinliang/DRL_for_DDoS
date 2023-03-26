@@ -157,8 +157,9 @@ class DeepRMSA_Agent():
         epsilon = 1
 
         print ('Starting ' + self.name)
-        with sess.as_default(), sess.graph.as_default():    
-            
+        with sess.as_default(), sess.graph.as_default():
+
+            mark_epsilon = 0
             total_step = 0
             markCount = 0
             while not coord.should_stop():
@@ -219,6 +220,7 @@ class DeepRMSA_Agent():
                             if sliceList:
                                 episode_size = len(sliceList)
                                 for index in range(len(sliceList)):
+                                    self.batch_size = len(sliceList)
                                     #state
                                     Input_feature = []
                                     ep_t = sliceList[index]
@@ -231,19 +233,26 @@ class DeepRMSA_Agent():
 
 
                                     blocking = 0
-
+                                    #观察value
                                     #Take an action using probabilities from policy network output.
                                     prob_dist, value, entro = sess.run([self.local_network.policy, self.local_network.value, self.local_network.entropy],
                                         feed_dict = {self.local_network.Input_p: Input_feature,
                                         self.local_network.Input_v: Input_feature})
                                     pp = prob_dist[0]
+                                    #[0.00086836 0.00357914 0.00357802 0.00478219 0.00254058 0.0030082, 0.01609759 0.00319894 0.00434318 0.00051378 0.00250096 0.00049609, 0.00181239 0.00334174 0.00105248 0.03642332 0.00180417 0.01148524, 0.00236244 0.00289154 0.00122864 0.00996341 0.00518862
                                     assert not np.isnan(entro)
                                     
                                     action_id = -1
+                                    #epsilon = 1
                                     if random.random() < epsilon:
-                                        action_id = np.random.choice(action_onehot, p = pp)
+                                        #随机探索
+                                        # action_id = np.random.choice(action_onehot, p = pp)
+                                        action_id = np.random.randint(0,len(pp))
                                     else:
-                                        action_id = np.argmax(pp)
+                                        #取概率最大的action，返回[  ]值最大的index
+                                        #action_id = np.argmax(pp)
+                                        action_id = np.random.choice(action_onehot, p = pp)
+
                                     s_, r, done, b = self.env.step(action_id,dosId,ep_t, currentTime)
                                     
                                     # reward
@@ -271,8 +280,10 @@ class DeepRMSA_Agent():
                                         var_norms_policy, var_norms_value, regu_loss_policy, regu_loss_value = self.train(episode_buffer, sess, 0.0)
                                         del(episode_buffer[:self.batch_size])
                                         sess.run(self.update_local_ops) # if we want to synchronize local with global every a training is performed
-                                        epsilon = np.max([epsilon - 1e-5, 0.05])
-                        
+                                        #epsilon = np.max([epsilon - 1e-5, 0.05])    # 100轮后随机概率减少
+                                        epsilon = np.max([epsilon - 1e-2, 0.05])    # 100轮后随机概率减少
+
+
                                 # end of an episode
                                 episode_count += 1
                                     
@@ -369,9 +380,7 @@ class DeepRMSA_Agent():
                 print('====================')
                 print('DDoS start')
                 print('dosedNumber: ',top.totalSliceNumDosed)
-                print("totalLoss:",top.blockLoss+top.migLoss)
                 print('top.blockLoss:',top.blockLoss)
-                print('top.migLoss:',top.migLoss)
                 print('dosBlock: ',top.blockForDos/top.totalSliceNumDosed)
                 print('bpOfDosForNode :',top.bpOfDosForNode)
                 print('bpOfDosForBW :',top.bpOfDosForBW)

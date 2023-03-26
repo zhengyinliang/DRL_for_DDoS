@@ -16,8 +16,8 @@ sliceQue = event.event()
 
 class SliceEnv():
     #action_bound = [0,1]   #动作范围
-    action_dim = 155 #两个动作
-    state_dim = 54  #1个观测值
+    action_dim = 160 #动作
+    state_dim = 54  #54个观测值
     dosList = [103]
     get_point = False
 

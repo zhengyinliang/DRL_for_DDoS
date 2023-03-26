@@ -4,7 +4,6 @@ import tensorflow as tf
 import random
 np.random.seed(1)
 random.seed(1)
-tf.set_random_seed(1)
 
 name_list1=['DosBP','migLoss','blockLoss','reward']
 

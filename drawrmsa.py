@@ -1,12 +1,7 @@
 import matplotlib.pyplot as plt
-import numpy as np
-import tensorflow as tf
-import random
-np.random.seed(1)
-random.seed(1)
-tf.set_random_seed(1)
 
-name_list=['BP','entropy','policy_loss','value_loss']
+
+name_list=['DosBP','entropy','policy_loss','value_loss']
 Ylist_bp = []
 Ylist_Ploss = []
 Ylist_Vloss = []
@@ -41,7 +36,7 @@ for name in name_list:
 
 
 fig, ax = plt.subplots(2, 2, figsize=(10, 5))
-line=0.05
+line=2
 for a in ax.reshape(-1,1):
     a[0].set_xlabel("epochs")
 ax[0][0].plot(Ylist_bp,    linewidth=line, color='black', label='BP')
@@ -52,5 +47,5 @@ ax[0][1].plot(Ylist_Ploss, linewidth=line,color='black', label='policy_loss')
 ax[0][1].legend()
 ax[1][1].plot(Ylist_Vloss, linewidth=line, color='black', label='value_loss')
 ax[1][1].legend()
-plt.savefig("./res/result1000-data")
+plt.savefig("./result1000-data")
 plt.show()
