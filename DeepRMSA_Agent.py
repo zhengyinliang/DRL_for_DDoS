@@ -79,8 +79,11 @@ class DeepRMSA_Agent():
         
         #
         self.total_epoNum=total_epoNum
+
         # self.all_ones = [[1 for x in range(self.LINK_NUM)] for y in range(self.LINK_NUM)] # (flag-slicing)
         # self.all_negones = [[0 for x in range(self.LINK_NUM)] for y in range(self.LINK_NUM)] # (flag-slicing)
+
+        #
         
     def update_target_graph(self, from_scope, to_scope):
         from_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, from_scope)
@@ -266,11 +269,7 @@ class DeepRMSA_Agent():
                                     episode_reward += r_t
                                     total_steps += 1
                                     episode_step_count += 1
-                                    
-                                    ##### 注意跳转
-                                    #if episode_count < (600//episode_size): # for warm-up
-                                    #    continue
-                                    
+
                                     # store experience
                                     episode_buffer.append([Input_feature, Input_feature, action_id, r_t, value[0,0]])
                                     episode_values.append(value[0,0])
