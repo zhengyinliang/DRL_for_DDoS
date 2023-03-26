@@ -389,26 +389,10 @@ class DeepRMSA_Agent():
                 migProbal3 = (top.l3MigNumber+top.l3MigNumberMn) /top.l3TotalNumber
                 migProbal4 = (top.l4MigNumber+top.l4MigNumberMn) /top.l4TotalNumber
 
-                print('l1_MigNumberAe: ', top.l1MigNumber)
-                print('l2_MigNumberAe: ', top.l2MigNumber)
-                print('l3_MigNumberAe: ', top.l3MigNumber)
-                print('l4_MigNumberAe: ', top.l4MigNumber)
-
-                print('l1_MigNumberMn: ', top.l1MigNumberMn)
-                print('l2_MigNumberMn: ', top.l2MigNumberMn)
-                print('l3_MigNumberMn: ', top.l3MigNumberMn)
-                print('l4_MigNumberMn: ', top.l4MigNumberMn)
-
-
                 print('l1_TotalNumber: ', top.l1TotalNumber)
                 print('l2_TotalNumber: ', top.l2TotalNumber)
                 print('l3_TotalNumber: ', top.l3TotalNumber)
                 print('l4_TotalNumber: ', top.l4TotalNumber)
-
-                print('migProbal1:',migProbal1)
-                print('migProbal2:',migProbal2)
-                print('migProbal3:',migProbal3)
-                print('migProbal4:',migProbal4)
 
                 #print('flag :',top.flag)
                 print('l1BpNumber :',top.l1BpNumber)
