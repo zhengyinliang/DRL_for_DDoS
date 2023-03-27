@@ -223,7 +223,7 @@ class DeepRMSA_Agent():
                             if sliceList:
                                 episode_size = len(sliceList)
                                 for index in range(len(sliceList)):
-                                    self.batch_size = len(sliceList)
+                                    #self.batch_size = len(sliceList)
                                     #state
                                     Input_feature = []
                                     ep_t = sliceList[index]

@@ -37,7 +37,8 @@ class Inputs:
     vmNumeberPerServer = 10
     aeNum = 2
     mnNum = 6
-    meNum = 32
+    meNum = 36
+    #2x25x10=500,1500,9000
     serverNumAE  = np.ones([aeNum,vmNumeberPerServer]) * VMCapability
     serverNumMN = np.ones([mnNum,vmNumeberPerServer]) * VMCapability
     serverNumME = np.ones([meNum,vmNumeberPerServer]) * VMCapability
@@ -60,7 +61,7 @@ class Inputs:
     nodeSlice[200] = {} 
 
     serviceRate = 1
-    trafficLoad = 500
+    trafficLoad = 600
     # 5000 500 1000
     sliceNum = 2000
     markBlock = 0
