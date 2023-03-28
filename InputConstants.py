@@ -61,9 +61,9 @@ class Inputs:
     nodeSlice[200] = {} 
 
     serviceRate = 1
-    trafficLoad = 600
+    trafficLoad = 400
     # 5000 500 1000
-    sliceNum = 2000
+    sliceNum = 6000
     markBlock = 0
 
     aeToae = 5
@@ -76,6 +76,6 @@ class Inputs:
     countAfterDos = False
 
     # 已经到达的切片
-    sliceArrived = 1000
+    sliceArrived = 3000
     
     migTime = 0.052 + 0.25

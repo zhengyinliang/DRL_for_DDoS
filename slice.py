@@ -14,11 +14,9 @@ class Slice:
     '''
     def __init__(self, id):
         self.id = id
-        #self.bbbb = random.randint(0,2)
-        # if self.bbbb < 1:
-        #     self.type = 1
-        # else: self.type = 0
+
         self.rd = random.randint(0,2)
+        #self.rd = random.randint(0, 1)
         if self.rd == 0:
             self.type = 1
         else: self.type = 0

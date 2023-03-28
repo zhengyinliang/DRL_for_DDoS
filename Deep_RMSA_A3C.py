@@ -92,6 +92,5 @@ with tf.Session() as sess:
         agent_rmsa = lambda: agent.rmsa(sess, coord, saver)
         t = threading.Thread(target=(agent_rmsa))
         t.start()
-        sleep(0.01)
         agent_threads.append(t)
     coord.join(agent_threads)
