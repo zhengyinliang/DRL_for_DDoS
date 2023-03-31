@@ -416,6 +416,7 @@ class DeepRMSA_Agent():
                 totalReward = top.blockLoss+top.migLoss
 
                 if self.name == 'agent_0':
+
                     fun.markFunction(beforeBP,afterBP,totalReward,dosBlock,top.blockLoss,top.migLoss, migProbal1,migProbal2,migProbal3,migProbal4,top.notMigNum, top.migAeNum,top.migMnNum,
          (top.l1TotalNumber-top.l1MigNumber-top.l1MigNumberMn),(top.l2TotalNumber-top.l2MigNumber-top.l2MigNumberMn),(top.l3TotalNumber-top.l3MigNumber-top.l3MigNumberMn),(top.l4TotalNumber-top.l4MigNumber-top.l4MigNumberMn),top.l1MigNumber,top.l2MigNumber,top.l3MigNumber,top.l4MigNumber,
          top.l1MigNumberMn,top.l2MigNumberMn,top.l3MigNumberMn,top.l4MigNumberMn)
