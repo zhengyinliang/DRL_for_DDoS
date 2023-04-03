@@ -16,6 +16,7 @@ import scipy.signal
 from time import time
 import time
 import os
+import train_args
 
 from env1 import SliceEnv
 import functions as fun
@@ -49,6 +50,9 @@ class DeepRMSA_Agent():
         self.gamma = gamma
         self.batch_size = batch_size
         self.model_path = model_path
+        self.num_layers = num_layers
+        self.layer_size = layer_size
+        self.regu_scalar = regu_scalar
 
         self.global_episodes = global_episodes  #
         self.increment = self.global_episodes.assign_add(1)
@@ -161,9 +165,11 @@ class DeepRMSA_Agent():
         fun.mkdir(res_path)  # 调用函数
 
         print('Starting ' + self.name)
+
+        train_args.store_args(self, res_path)
+
         with sess.as_default(), sess.graph.as_default():
 
-            mark_epsilon = 0
             total_step = 0
             markCount = 0
             while not coord.should_stop():
@@ -193,9 +199,7 @@ class DeepRMSA_Agent():
                 bp = -1
                 totalReward = -1
                 dosBlock = -1
-                bpTotal = -1
 
-                blocking = 0
                 # begin an episode
                 while not eventQuene.empty():
                     next_item = eventQuene.get()
@@ -284,7 +288,7 @@ class DeepRMSA_Agent():
                                         sess.run(
                                             self.update_local_ops)  # if we want to synchronize local with global every a training is performed
                                         # epsilon = np.max([epsilon - 1e-5, 0.05])    # 100轮后随机概率减少
-                                        epsilon = np.max([epsilon - 1e-2, 0.05])  # 100轮后随机概率减少
+                                        epsilon = np.max([epsilon - input.epsilon_arg, 0.05])  # 100轮后随机概率减少
 
                                 # end of an episode
                                 episode_count += 1

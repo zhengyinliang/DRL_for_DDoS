@@ -7,11 +7,9 @@
 import random
 
 import numpy as np
-import tensorflow as tf
 
 np.random.seed(1)
 random.seed(1)
-tf.set_random_seed(1)
 import graph
 import event
 import functions as fun
@@ -24,7 +22,7 @@ if __name__ == '__main__':
     # 创建top，网路图G
     # 增加一个traffic load 的值迭代后续，传入event
     sliceList = event.event()
-    for ep in range(3):
+    for ep in range(1):
         random.seed(1)
         print('第', ep, '轮')
         sliceDic = {}  # 记录slice 对象
@@ -116,10 +114,8 @@ if __name__ == '__main__':
 
             else:
                 print('event wrong')
-        # print('总阻塞率：',block/input.sliceNum)
-        # print('AAU阻塞率：',top.blockNumForAAU/input.sliceNum)
-        # print('link阻塞率：',top.blockNumForLink/input.sliceNum)
-        # print('Node阻塞率：',top.blockNumForNode/input.sliceNum)
+
+
         glbReward = top.blockLoss + top.migLoss
         bp = top.sliceBlocked / top.sliceArrived
         top.blockLoss
@@ -139,35 +135,15 @@ if __name__ == '__main__':
         print('dosedNumber: ', top.totalSliceNumDosed)
         print("totalLoss:", glbReward)
         print('top.blockLoss:', top.blockLoss)
-        print('top.migLoss:', top.migLoss)
-        #        print('dosBlock: ',top.blockForDos/top.totalSliceNumDosed)
+        print('dosBlock: ',top.blockForDos/top.totalSliceNumDosed)
         print('bpOfDosForNode :', top.bpOfDosForNode)
         print('bpOfDosForBW :', top.bpOfDosForBW)
-
-        # migProbal1 = (top.l1MigNumber+top.l1MigNumberMn) /top.l1TotalNumber
-        # migProbal2 = (top.l2MigNumber+top.l2MigNumberMn) /top.l2TotalNumber
-        # migProbal3 = (top.l3MigNumber+top.l3MigNumberMn) /top.l3TotalNumber
-        # migProbal4 = (top.l4MigNumber+top.l4MigNumberMn) /top.l4TotalNumber
-
-        print('l1_MigNumberAe: ', top.l1MigNumber)
-        print('l2_MigNumberAe: ', top.l2MigNumber)
-        print('l3_MigNumberAe: ', top.l3MigNumber)
-        print('l4_MigNumberAe: ', top.l4MigNumber)
-
-        print('l1_MigNumberMn: ', top.l1MigNumberMn)
-        print('l2_MigNumberMn: ', top.l2MigNumberMn)
-        print('l3_MigNumberMn: ', top.l3MigNumberMn)
-        print('l4_MigNumberMn: ', top.l4MigNumberMn)
 
         print('l1_TotalNumber: ', top.l1TotalNumber)
         print('l2_TotalNumber: ', top.l2TotalNumber)
         print('l3_TotalNumber: ', top.l3TotalNumber)
         print('l4_TotalNumber: ', top.l4TotalNumber)
 
-        # print('migProbal1:',migProbal1)
-        # print('migProbal2:',migProbal2)
-        # print('migProbal3:',migProbal3)
-        # print('migProbal4:',migProbal4)
 
         # print('flag :',top.flag)
         print('l1BpNumber :', top.l1BpNumber)
@@ -175,12 +151,12 @@ if __name__ == '__main__':
         print('l3BpNumber :', top.l3BpNumber)
         print('l4BpNumbe :', top.l4BpNumber)
 
-        print("===== after Dos ========")
-        afterSlice = input.sliceNum - input.sliceArrived
-        afterBP = ((top.bpOfMappingForNode + top.bpOfMappingForBW) - (bpOfNodeBeforeDos + bpOfBwBeforeDos)) / afterSlice
-
-        print(afterSlice, " slice mapping")
-        print("sliceArrived: ", afterSlice)
-        print(afterSlice, 'slcie bp:', afterBP)
-        print('blockOfMappingForNode :', (top.bpOfMappingForNode - bpOfNodeBeforeDos))
-        print('blockOfMappingForBW :', (top.bpOfMappingForBW - bpOfBwBeforeDos))
+        # print("===== after Dos ========")
+        # afterSlice = input.sliceNum - input.sliceArrived
+        # # afterBP = ((top.bpOfMappingForNode + top.bpOfMappingForBW) - (bpOfNodeBeforeDos + bpOfBwBeforeDos)) / afterSlice
+        #
+        # print(afterSlice, " slice mapping")
+        # print("sliceArrived: ", afterSlice)
+        # # print(afterSlice, 'slcie bp:', afterBP)
+        # print('blockOfMappingForNode :', (top.bpOfMappingForNode - bpOfNodeBeforeDos))
+        # print('blockOfMappingForBW :', (top.bpOfMappingForBW - bpOfBwBeforeDos))

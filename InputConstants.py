@@ -5,14 +5,9 @@ Created on zhengyin liang 12 2021
 
 @author: liang
 """
-import random
 
 import numpy as np
-import tensorflow as tf
 
-np.random.seed(1)
-random.seed(1)
-tf.set_random_seed(1)
 
 
 class Inputs:
@@ -23,6 +18,8 @@ class Inputs:
     resoucers = [[20, 10, 5], [4, 2, 1], [4, 4, 2]]
     transLatency = [[0.1, 1, 20], [0.05, 0.05, 0.5], [0.25, 10, 10]]
     bandWidth = [[25, 10, 10], [4, 1, 1], [4, 1, 1]]
+    # bandWidth = [[25, 25, 25], [25, 25, 25], [4, 1, 1]]
+
     # isolation = (1,2,3,4)
     # reliability = (99,99.9,99.99,99.999)
     linkLatency = 0.005
@@ -40,7 +37,7 @@ class Inputs:
     vmNumeberPerServer = 10
     aeNum = 2
     mnNum = 6
-    meNum = 36
+    meNum = 50
     # 2x25x10=500,1500,9000
     serverNumAE = np.ones([aeNum, vmNumeberPerServer]) * VMCapability
     serverNumMN = np.ones([mnNum, vmNumeberPerServer]) * VMCapability
@@ -64,9 +61,9 @@ class Inputs:
     nodeSlice[200] = {}
 
     serviceRate = 1
-    trafficLoad = 400
+    trafficLoad = 500
     # 5000 500 1000
-    sliceNum = 6000
+    sliceNum = 3000
     markBlock = 0
 
     aeToae = 5
@@ -79,6 +76,6 @@ class Inputs:
     countAfterDos = False
 
     # 已经到达的切片
-    sliceArrived = 3000
+    sliceArrived = 1000
 
-    migTime = 0.052 + 0.25
+    epsilon_arg = 1e-2

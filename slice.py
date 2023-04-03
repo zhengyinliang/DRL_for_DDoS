@@ -68,11 +68,4 @@ class Slice:
                     i += 1
             topo.idle_AAU_num -= self.aau
 
-    # def test(self, topo):
-    #     self.generateAAU(topo)
-    #     print(topo.aau_map_slice_num)
 
-# top = graph.topology()
-# slice = Slice(1)
-# top.aau_map_slice_num[498] = 1
-# slice.test(top)
