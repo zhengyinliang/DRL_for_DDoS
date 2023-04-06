@@ -20,7 +20,7 @@ class Slice:
     def __init__(self, id):
         self.id = id
 
-        self.rd = random.randint(0, 2)
+        self.rd = random.randint(0, 3)
         # self.rd = random.randint(0, 1)
         if self.rd == 0:
             self.type = 1

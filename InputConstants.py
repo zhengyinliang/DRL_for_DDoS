@@ -34,7 +34,7 @@ class Inputs:
     LevelAndType = -1
     isolation = 4
     # 10 8   500  1500 4500
-    vmNumeberPerServer = 10
+    vmNumeberPerServer = 15
     aeNum = 2
     mnNum = 6
     meNum = 50
@@ -59,9 +59,10 @@ class Inputs:
         nodeScore[i] = mnNum * vmNumeberPerServer * VMCapability
     nodeScore[200] = meNum * vmNumeberPerServer * VMCapability
     nodeSlice[200] = {}
+    max_node_score = meNum * vmNumeberPerServer * VMCapability
 
     serviceRate = 1
-    trafficLoad = 500
+    trafficLoad = 700
     # 5000 500 1000
     sliceNum = 3000
     markBlock = 0
@@ -76,6 +77,6 @@ class Inputs:
     countAfterDos = False
 
     # 已经到达的切片
-    sliceArrived = 1000
+    sliceArrived = 785
 
-    epsilon_arg = 1e-2
+    epsilon_arg = 1e-3

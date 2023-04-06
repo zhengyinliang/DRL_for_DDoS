@@ -21,6 +21,7 @@ import copy
 if __name__ == '__main__':
     # 创建top，网路图G
     # 增加一个traffic load 的值迭代后续，传入event
+
     sliceList = event.event()
     for ep in range(1):
         random.seed(1)
@@ -60,8 +61,8 @@ if __name__ == '__main__':
                         top.flag = False
                     else:
                         break
-                str = "slice %d 业务到达，开始网络映射" % slice.id
-                # print(str)
+                strxx = "slice %d 业务到达，开始网络映射" % slice.id
+                # print(strxx)
                 # 解决映射
                 res = fun.delServiceChain(G, top, slice)
                 if res == 0:
@@ -79,8 +80,8 @@ if __name__ == '__main__':
                 slice = next_item[2]
                 count_leave += 1
                 # 判断业务是否部署， 是则释放，否责跳过
-                str = "slice %d 业务离开，开始释放切片资源" % slice.id
-                # print(str)
+                strxx = "slice %d 业务离开，开始释放切片资源" % slice.id
+                # print(strxx)
                 if slice.real == True:
                     aau = slice.list_AAU
                     fpath = slice.front[0]
@@ -125,6 +126,7 @@ if __name__ == '__main__':
         print(input.sliceArrived, " slice mapping")
         print("sliceArrived: ", input.sliceArrived)
         beforeBP = (bpOfNodeBeforeDos + bpOfBwBeforeDos) / input.sliceArrived
+
 
         print(input.sliceArrived, 'slcie bp:', beforeBP)
         print('blockOfMappingForNode :', bpOfNodeBeforeDos)

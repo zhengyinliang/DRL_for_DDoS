@@ -173,10 +173,12 @@ class DeepRMSA_Agent():
             total_step = 0
             markCount = 0
             while not coord.should_stop():
-                total_step += 1
+                ss_action = []
+                slice_info_ss = []
                 mean_value_losss = 0
                 mean_policy_loss = 0
                 mean_entropy = 0
+                total_step += 1
                 episode_values = []
                 episode_reward = 0
                 episode_step_count = 0
@@ -225,6 +227,7 @@ class DeepRMSA_Agent():
                             sliceList = fun.rlDelDDoS(G, top, dosId, self.env.sliceDic, currentTime)
 
                             ep_r = 0
+
                             if sliceList:
                                 episode_size = len(sliceList)
                                 for index in range(len(sliceList)):
@@ -256,10 +259,12 @@ class DeepRMSA_Agent():
                                     if random.random() < epsilon:
                                         # 随机探索
                                         # action_id = np.random.choice(action_onehot, p = pp)
-                                        action_id = np.random.randint(0, len(pp))
+                                        #action_id = np.random.randint(0, len(pp))
+                                        action_id = np.random.choice(action_onehot, p=pp)
+
                                     else:
                                         # 取概率最大的action，返回[  ]值最大的index
-                                        # action_id = np.argmax(pp)
+                                        #action_id = np.argmax(pp)
                                         action_id = np.random.choice(action_onehot, p=pp)
 
                                     s_, r, done, b = self.env.step(action_id, dosId, ep_t, currentTime)
@@ -270,11 +275,30 @@ class DeepRMSA_Agent():
                                         num_blocks += 1
                                         print("index:", index, " action:", action_id, " blocked")
                                     else:
+                                        slice_mark = self.env.sliceDic[ep_t]
+                                        one_action = []
+                                        if slice_mark.DU[0] > 100:
+                                            one_action.append(slice_mark.DU[0])
+                                        else:
+                                            one_action.append(-1)
+                                        if slice_mark.CU[0] > 100:
+                                            one_action.append(slice_mark.CU[0])
+                                        else:
+                                            one_action.append(-1)
+                                        if slice_mark.MEC[0] > 100:
+                                            one_action.append(slice_mark.MEC[0])
+                                        else:
+                                            one_action.append(-1)
+                                        ss_action.append(copy.deepcopy(one_action))
+                                        slice_info_ss.append(self.env.sliceDic[ep_t].type)
                                         print("index:", index, " action:", action_id)
 
                                     episode_reward += r_t
                                     total_steps += 1
                                     episode_step_count += 1
+
+                                    if episode_count < len(sliceList)/self.batch_size:  # for warm-up
+                                        continue
 
                                     # store experience
                                     episode_buffer.append([Input_feature, Input_feature, action_id, r_t, value[0, 0]])
@@ -285,13 +309,16 @@ class DeepRMSA_Agent():
                                         var_norms_policy, var_norms_value, regu_loss_policy, regu_loss_value = self.train(
                                             episode_buffer, sess, 0.0)
                                         del (episode_buffer[:self.batch_size])
-                                        sess.run(
-                                            self.update_local_ops)  # if we want to synchronize local with global every a training is performed
+                                        sess.run(self.update_local_ops)  # if we want to synchronize local with global every a training is performed
                                         # epsilon = np.max([epsilon - 1e-5, 0.05])    # 100轮后随机概率减少
                                         epsilon = np.max([epsilon - input.epsilon_arg, 0.05])  # 100轮后随机概率减少
 
                                 # end of an episode
                                 episode_count += 1
+
+
+                                if episode_count <= len(sliceList) / self.batch_size + 2:  # for warm-up
+                                    break
 
                                 # sess.run(self.update_local_ops) # if we want to synchronize local with global every episode is finished
 
@@ -374,6 +401,9 @@ class DeepRMSA_Agent():
                     else:
                         print('event wrong')
 
+                if episode_count <= len(sliceList) / self.batch_size +2:  # for warm-up
+                    continue
+
                 print("before Dos")
                 print(input.sliceArrived, " slice mapping")
                 print("sliceArrived: ", input.sliceArrived)
@@ -390,6 +420,8 @@ class DeepRMSA_Agent():
                 print('dosBlock: ', top.blockForDos / top.totalSliceNumDosed)
                 print('bpOfDosForNode :', top.bpOfDosForNode)
                 print('bpOfDosForBW :', top.bpOfDosForBW)
+                dos_node = top.bpOfDosForNode/top.totalSliceNumDosed
+                dos_bw = top.bpOfDosForBW/top.totalSliceNumDosed
 
                 migProbal1 = (top.l1MigNumber + top.l1MigNumberMn) / top.l1TotalNumber
                 migProbal2 = (top.l2MigNumber + top.l2MigNumberMn) / top.l2TotalNumber
@@ -422,7 +454,7 @@ class DeepRMSA_Agent():
                 totalReward = top.blockLoss + top.migLoss
 
                 if self.name == 'agent_0':
-                    fun.markFunction(res_path, beforeBP, afterBP, totalReward, dosBlock, top.blockLoss, top.migLoss,
+                    fun.markFunction(dos_node, dos_bw, slice_info_ss, total_step,ss_action, res_path, beforeBP, afterBP, totalReward, dosBlock, top.blockLoss, top.migLoss,
                                      migProbal1, migProbal2, migProbal3, migProbal4, top.notMigNum, top.migAeNum,
                                      top.migMnNum,
                                      (top.l1TotalNumber - top.l1MigNumber - top.l1MigNumberMn),

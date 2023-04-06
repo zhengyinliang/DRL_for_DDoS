@@ -85,8 +85,8 @@ class SliceEnv():
         points += [fun.getNodeLinkScore(self.top.G, 200), 0, 0, 0, fun.getNodeLinkScore(self.top.G, 105), 0]
         # node
         for i in range(101, 106):
-            points.append(self.top.nodeScore[i])
-        points.append(self.top.nodeScore[200])
+            points.append(self.top.nodeScore[i]/self.top.max_node_score)
+        points.append(self.top.nodeScore[200]/self.top.max_node_score)
 
         # slice
         if self.slice != None:

@@ -79,6 +79,7 @@ class topology:
         self.vmTypeAE = inputs.vmTypeAE
         self.vmTypeMN = inputs.vmTypeMN
         self.vmTypeME = inputs.vmTypeME
+        self.max_node_score = inputs.max_node_score
         # mark block
         self.blockNumForAAU = inputs.markBlock
 

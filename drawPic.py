@@ -63,25 +63,25 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+#
+# name_list = ['MN_1', 'MN_2', 'MN_4', 'MN_5', 'ME']
+# num_list = [7, 10, 10, 8, 0]
+# num_list1 = [5, 6, 7, 6, 33]
+# plt.bar(range(len(num_list)), num_list, label='uRLLC', fc=sns.xkcd_rgb["medium purple"], width=0.5)
+# plt.bar(range(len(num_list)), num_list1, bottom=num_list, label='eMBB', tick_label=name_list, fc=sns.xkcd_rgb["blue"],
+#         width=0.5)
+# my_y_ticks = np.arange(0, 35, 5)
+# plt.yticks(my_y_ticks)
+# plt.xlabel("node")
+# plt.ylabel("migrate slice number")
+# plt.legend()
+# # plt.show()
+# plt.savefig("./" + "basefenbu")
 
 name_list = ['MN_1', 'MN_2', 'MN_4', 'MN_5', 'ME']
-num_list = [7, 10, 10, 8, 0]
-num_list1 = [5, 6, 7, 6, 33]
-plt.bar(range(len(num_list)), num_list, label='uRLLC', fc=sns.xkcd_rgb["medium purple"], width=0.5)
-plt.bar(range(len(num_list)), num_list1, bottom=num_list, label='eMBB', tick_label=name_list, fc=sns.xkcd_rgb["blue"],
-        width=0.5)
-my_y_ticks = np.arange(0, 35, 5)
-plt.yticks(my_y_ticks)
-plt.xlabel("node")
-plt.ylabel("migrate slice number")
-plt.legend()
-# plt.show()
-plt.savefig("./" + "basefenbu")
+num_list = [0, 9, 0, 0, 0]
 
-name_list = ['MN_1', 'MN_2', 'MN_4', 'MN_5', 'ME']
-num_list = [6, 12, 10, 6, 0]
-
-num_list1 = [5, 8, 7, 6, 31]
+num_list1 = [20, 0, 14, 3, 37]
 
 plt.bar(range(len(num_list)), num_list, label='uRLLC', fc=sns.xkcd_rgb["medium purple"], width=0.5)
 plt.bar(range(len(num_list)), num_list1, bottom=num_list, label='eMBB', tick_label=name_list, fc=sns.xkcd_rgb["blue"],

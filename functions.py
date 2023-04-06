@@ -15,7 +15,6 @@ import os
 inputs = InputConstants.Inputs()
 # action dic
 import copy
-
 ACTION = []
 count = 0
 
@@ -26,42 +25,60 @@ for i in range(1, 6):
         temp[1] = j
         for k in range(1, 6):
             temp[2] = k
-            ACTION.append(copy.copy(temp))
-            count += 1
+            if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
+                pass
+            else:
+                ACTION.append(copy.copy(temp))
+                count += 1
 
 temp = [-1, -1, -1]
 for i in range(1, 6):
     temp[1] = i
     for j in range(1, 6):
         temp[2] = j
+        if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
+            pass
+        else:
+            ACTION.append(copy.copy(temp))
+            count += 1
+
+temp = [-1, -1, -1]
+for i in range(1, 6):
+    temp[2] = i
+    if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
+        pass
+    else:
+        ACTION.append(copy.copy(temp))
+        count += 1
+temp = [-1, -1, -1]
+
+for i in range(1, 6):
+    temp[1] = i
+    if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
+        pass
+    else:
         ACTION.append(copy.copy(temp))
         count += 1
 
 temp = [-1, -1, -1]
 for i in range(1, 6):
-    temp[2] = i
-    ACTION.append(copy.copy(temp))
-    count += 1
-temp = [-1, -1, -1]
-
-for i in range(1, 6):
-    temp[1] = i
-    ACTION.append(copy.copy(temp))
-    count += 1
-
-temp = [-1, -1, -1]
-for i in range(1, 6):
     temp[0] = i
-    ACTION.append(copy.copy(temp))
-    count += 1
+    if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
+        pass
+    else:
+        ACTION.append(copy.copy(temp))
+        count += 1
 
 temp = [-1, -1, -1]
 for i in range(1, 6):
     temp[0] = i
     for j in range(1, 6):
         temp[1] = j
-        ACTION.append(copy.copy(temp))
-        count += 1
+        if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
+            pass
+        else:
+            ACTION.append(copy.copy(temp))
+            count += 1
 
 ACTION_DIC = {1: 101, 2: 102, 3: 200, 4: 104, 5: 105}
 
@@ -88,10 +105,33 @@ def markBp(top, bpflag, tempSlice):
             top.l4BpNumber += 1
 
 
-def markFunction(res_path, bpBefore, bpAfter, dosLoss, bpDos, blockLoss, migLoss, migProbal1, migProbal2, migProbal3,
+def markFunction(dos_node, dos_bw, slice_info_ss, total_step,ss_action, res_path, bpBefore, bpAfter, dosLoss, bpDos, blockLoss, migLoss, migProbal1, migProbal2, migProbal3,
                  migProbal4, notMigNum, migAeNum, migMnNum, l1NotMig, l2NotMig, l3NotMig, l4NotMig, l1MigAe, l2MigAe,
                  l3MigAe, l4MigAe, l1MigMn, l2MigMn, l3MigMn, l4MigMn):
     # bp total block
+
+    fp = open('./' + res_path + '/block_dos_for_node.dat', 'a')
+    fp.write(str(dos_node) + '\n')
+    fp.close()
+
+    fp = open('./' + res_path + '/block_dos_for_bw.dat', 'a')
+    fp.write(str(dos_bw) + '\n')
+    fp.close()
+
+    fp = open('./' + res_path + '/action_ss.dat', 'a')
+    fp.write('epoch: '+str(total_step) + '\n')
+    fp.write(str(ss_action)+'\n')
+    fp.write('slice_type: ' + str(slice_info_ss) + '\n')
+    fp.close()
+
+    fp = open('./' + res_path + '/bpBeforeDos.dat', 'a')
+    fp.write('%f\n' % bpBefore)
+    fp.close()
+
+    fp = open('./' + res_path + '/bpBeforeDos.dat', 'a')
+    fp.write('%f\n' % bpBefore)
+    fp.close()
+
     fp = open('./' + res_path + '/bpBeforeDos.dat', 'a')
     fp.write('%f\n' % bpBefore)
     fp.close()
@@ -635,13 +675,23 @@ def migrate_rl(G, top, tempSlice, dosId, mnOrAe, action):
     totalPath = []
     updateType = []  # 统计哪些更新了
     serverDU = None
+    left_flag = -1
 
     if tempSlice.DU[0] == dosId:
         # ===============if ！=   du, cu(DOS), mec// cu正常, mec节点
         # 寻找节点和链路资源，并占位
         updateType.append(0)
         AE = math.ceil(1.0 * tempSlice.list_AAU[0] / inputs.num_BS)
-        duNodeList = [migrate_place[0]]
+        pathAeMeBefore = nx.shortest_path(G, AE, 200, weight='weight')
+        pathAeMe = pathFilter(pathAeMeBefore, mnOrAe)
+        duNodeList = searchNode(tempSlice.transLatency[0], pathAeMe)
+        duNodeList = nodeQuene(top, duNodeList, 0, tempSlice.type)
+        if migrate_place[0] not in duNodeList:
+            left_flag = -1
+            # markBp(top, 0, tempSlice)
+            # return 0
+        else:
+            duNodeList = [migrate_place[0]]
         bpFlag = 0
         for nodeDU in duNodeList:
             if nodeDU is not None:
@@ -652,12 +702,13 @@ def migrate_rl(G, top, tempSlice, dosId, mnOrAe, action):
             else:
                 serverDU = None
         if not serverDU:
-            markBp(top, bpFlag, tempSlice)
-            return 0
-
-        exisNode.append(serverDU)
-        exisWave.append(pathfront)
-        totalPath.append(lightfront)
+            # markBp(top, bpFlag, tempSlice)
+            # return 0
+            left_flag =1
+        else:
+            exisNode.append(serverDU)
+            exisWave.append(pathfront)
+            totalPath.append(lightfront)
 
     serverCU = None
 
@@ -669,8 +720,16 @@ def migrate_rl(G, top, tempSlice, dosId, mnOrAe, action):
             pathStart = serverDU[0]
         else:
             pathStart = tempSlice.DU[0]
-
-        cuNodeList = [migrate_place[1]]
+        pathDUMeBefore = nx.shortest_path(G, pathStart, 200, weight='weight')
+        pathDUMe = pathFilter(pathDUMeBefore, mnOrAe)
+        cuNodeList = searchNode(tempSlice.transLatency[1], pathDUMe)
+        cuNodeList = nodeQuene(top, cuNodeList, 1, tempSlice.type)
+        if migrate_place[1] not in cuNodeList:
+            # markBp(top, 0, tempSlice)
+            # return 0
+            left_flag =1
+        else:
+            cuNodeList = [migrate_place[1]]
         bpFlag = 0
         for nodeCU in cuNodeList:
             if nodeCU is not None:
@@ -681,11 +740,13 @@ def migrate_rl(G, top, tempSlice, dosId, mnOrAe, action):
             else:
                 serverCU = None
         if not serverCU:
-            markBp(top, bpFlag, tempSlice)
-            return 0
-        exisNode.append(serverCU)
-        exisWave.append(pathmront)
-        totalPath.append(lightmid)
+            # markBp(top, bpFlag, tempSlice)
+            # return 0
+            left_flag =1
+        else:
+            exisNode.append(serverCU)
+            exisWave.append(pathmront)
+            totalPath.append(lightmid)
     elif tempSlice.DU[0] == dosId and tempSlice.CU[0] != dosId:
         # upadte b link
         # search link
@@ -693,91 +754,294 @@ def migrate_rl(G, top, tempSlice, dosId, mnOrAe, action):
         midwave, midpath = linkSearch(exisWave, serverDU[0], G, top, tempSlice.CU[0], tempSlice.bandwidth[1])
         if midwave == -10:
             # print('366, block for link')
-            return 0
+            left_flag = 1
+            # return 0
         else:
             # updateLink.append(1)
             exisNode.append(-1)
             exisWave.append(midwave)
             totalPath.append(midpath)
+    if left_flag == 1:
+        pass
+    else:
+        if tempSlice.MEC[0] == dosId:
+            # 寻找节点和链路资源，并占位，更新
+            updateType.append(2)
+            if tempSlice.CU[0] == dosId:
+                pathStart = serverCU[0]
+            else:
+                pathStart = tempSlice.CU[0]
 
-    if tempSlice.MEC[0] == dosId:
-        # 寻找节点和链路资源，并占位，更新
-        updateType.append(2)
+            pathCUMeBefore = nx.shortest_path(G, pathStart, 200, weight='weight')
+            pathCUMe = pathFilter(pathCUMeBefore, mnOrAe)
+            # pathCUMe = nx.shortest_path(G, pathStart, 200, weight='weight')
+            mecNodeList = searchNode(tempSlice.transLatency[2], pathCUMe)
+            mecNodeList = nodeQuene(top, mecNodeList, 2, tempSlice.type)
+            if migrate_place[2] not in mecNodeList:
+                # markBp(top, 0, tempSlice)
+                # return 0
+                left_flag = 1
+            else:
+                mecNodeList = [migrate_place[2]]
+            serverMEC = None
+            bpFlag = 0
+            for nodeMEC in mecNodeList:
+                if nodeMEC is not None:
+                    if nodeMEC != dosId:
+                        serverMEC, pathbront, lightback, bpFlag = nodeLinkSearch(exisNode, exisWave, pathStart, G, top,
+                                                                                 nodeMEC, tempSlice, 2,
+                                                                                 tempSlice.bandwidth[2])
+                        if serverMEC: break
+            if not serverMEC:
+                # 阻塞MEC
+                # markBp(top, bpFlag, tempSlice)
+                # return 0
+                left_flag =1
+            else:
+                exisNode.append(serverMEC)
+                exisWave.append(pathbront)
+                totalPath.append(lightback)
+        elif tempSlice.CU[0] == dosId and tempSlice.MEC[0] != dosId:
+            # upadte b link
+            # search link
+            if left_flag == 1:
+                pass
+            else:
+                updateType.append(2)
+                backwave, backpath = linkSearch(exisWave, serverCU[0], G, top, tempSlice.MEC[0], tempSlice.bandwidth[2])
+                if backwave == -10:
+                    # print('403, block for link')
+                    left_flag =1
+                    # markBp(top, 1, tempSlice)
+                    # return 0
+                else:
+                    # updateLink.append(1)
+                    exisNode.append(-1)
+                    exisWave.append(backwave)
+                    totalPath.append(backpath)
+    if left_flag == -1:
+        i = 0
+        # print('DU,CU,MEC node:')
+        # print('=======节点=====更新前',G.nodes[exisNode[0][0]])
+        for node in exisNode:
+            # print(node)
+            if node != -1:
+                markNodeSliceAdd(top, node[0], tempSlice.id)
+                if updateType[i] == 0:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[0], updateType[i], tempSlice.level)
+                    tempSlice.DU = exisNode[i]
+                if updateType[i] == 1:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[1], updateType[i], tempSlice.level)
+                    tempSlice.CU = exisNode[i]
+                if updateType[i] == 2:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[2], updateType[i], tempSlice.level)
+                    tempSlice.MEC = exisNode[i]
+            i += 1
+
+        # print('========节点====更新后',G.nodes[exisNode[0][0]])
+
+        # print('f,m,b paht:')
+        # for i in range(len(updateType)):
+        # print(totalPath[i],exisWave[i])
+        # print('arrive： link before ')
+        for j in range(len(updateType)):
+            if updateType[j] == 0:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[0])
+                tempSlice.front = [totalPath[j], exisWave[j], tempSlice.bandwidth[0]]
+            if updateType[j] == 1:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[1])
+                tempSlice.mid = [totalPath[j], exisWave[j], tempSlice.bandwidth[1]]
+            if updateType[j] == 2:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[2])
+                tempSlice.back = [totalPath[j], exisWave[j], tempSlice.bandwidth[2]]
+        return 1
+    else:
+
+        exisNode = []
+        exisWave = []
+        totalPath = []
+        updateType = []  # 统计哪些更新了
+        serverDU = None
+
+        if tempSlice.DU[0] == dosId:
+            # ===============if ！=   du, cu(DOS), mec// cu正常, mec节点
+            # 寻找节点和链路资源，并占位
+            updateType.append(0)
+            AE = math.ceil(1.0 * tempSlice.list_AAU[0] / inputs.num_BS)
+            pathAeMeBefore = nx.shortest_path(G, AE, 200, weight='weight')
+            pathAeMe = pathFilter(pathAeMeBefore, mnOrAe)
+            duNodeList = searchNode(tempSlice.transLatency[0], pathAeMe)
+            duNodeList = nodeQuene(top, duNodeList, 0, tempSlice.type)
+            if migrate_place[0] not in duNodeList:
+                markBp(top, 0, tempSlice)
+                return 0
+            else:
+                duNodeList = [migrate_place[0]]
+            bpFlag = 0
+            for nodeDU in duNodeList:
+                if nodeDU is not None:
+                    if nodeDU != dosId:
+                        serverDU, pathfront, lightfront, bpFlag = nodeLinkSearch(exisNode, exisWave, AE, G, top, nodeDU,
+                                                                                 tempSlice, 0, tempSlice.bandwidth[0])
+                        if serverDU: break
+                else:
+                    serverDU = None
+            if not serverDU:
+                markBp(top, bpFlag, tempSlice)
+                return 0
+
+            exisNode.append(serverDU)
+            exisWave.append(pathfront)
+            totalPath.append(lightfront)
+
+        serverCU = None
+
         if tempSlice.CU[0] == dosId:
-            pathStart = serverCU[0]
-        else:
-            pathStart = tempSlice.CU[0]
+            #
+            # 寻找节点和链路资源，并占位
+            updateType.append(1)
+            if tempSlice.DU[0] == dosId:
+                pathStart = serverDU[0]
+            else:
+                pathStart = tempSlice.DU[0]
+            pathDUMe = [103,104,105,200]
+            cuNodeList = searchNode(tempSlice.transLatency[1], pathDUMe)
+            cuNodeList = nodeQuene(top, cuNodeList, 1, tempSlice.type)
+            if migrate_place[1] not in cuNodeList:
+                markBp(top, 0, tempSlice)
+                return 0
+            else:
+                cuNodeList = [migrate_place[1]]
+            bpFlag = 0
+            for nodeCU in cuNodeList:
+                if nodeCU is not None:
+                    if nodeCU != dosId:
+                        serverCU, pathmront, lightmid, bpFlag = nodeLinkSearch(exisNode, exisWave, pathStart, G, top,
+                                                                               nodeCU, tempSlice, 1, tempSlice.bandwidth[1])
+                        if serverCU: break
+                else:
+                    serverCU = None
+            if not serverCU:
+                markBp(top, bpFlag, tempSlice)
+                return 0
+            exisNode.append(serverCU)
+            exisWave.append(pathmront)
+            totalPath.append(lightmid)
+        elif tempSlice.DU[0] == dosId and tempSlice.CU[0] != dosId:
+            # upadte b link
+            # search link
+            updateType.append(1)
+            midwave, midpath = linkSearch(exisWave, serverDU[0], G, top, tempSlice.CU[0], tempSlice.bandwidth[1])
+            if midwave == -10:
+                # print('366, block for link')
+                return 0
+            else:
+                # updateLink.append(1)
+                exisNode.append(-1)
+                exisWave.append(midwave)
+                totalPath.append(midpath)
 
-        mecNodeList = [migrate_place[2]]
-        serverMEC = None
-        bpFlag = 0
-        for nodeMEC in mecNodeList:
-            if nodeMEC is not None:
-                if nodeMEC != dosId:
-                    serverMEC, pathbront, lightback, bpFlag = nodeLinkSearch(exisNode, exisWave, pathStart, G, top,
-                                                                             nodeMEC, tempSlice, 2,
-                                                                             tempSlice.bandwidth[2])
-                    if serverMEC: break
-        if not serverMEC:
-            # 阻塞MEC
-            markBp(top, bpFlag, tempSlice)
-            return 0
-        exisNode.append(serverMEC)
-        exisWave.append(pathbront)
-        totalPath.append(lightback)
-    elif tempSlice.CU[0] == dosId and tempSlice.MEC[0] != dosId:
-        # upadte b link
-        # search link
-        updateType.append(2)
-        backwave, backpath = linkSearch(exisWave, serverCU[0], G, top, tempSlice.MEC[0], tempSlice.bandwidth[2])
-        if backwave == -10:
-            # print('403, block for link')
-            markBp(top, 1, tempSlice)
-            return 0
-        else:
-            # updateLink.append(1)
-            exisNode.append(-1)
-            exisWave.append(backwave)
-            totalPath.append(backpath)
+        if tempSlice.MEC[0] == dosId:
+            # 寻找节点和链路资源，并占位，更新
+            updateType.append(2)
+            if tempSlice.CU[0] == dosId:
+                pathStart = serverCU[0]
+            else:
+                pathStart = tempSlice.CU[0]
 
-    i = 0
-    # print('DU,CU,MEC node:')
-    # print('=======节点=====更新前',G.nodes[exisNode[0][0]])
-    for node in exisNode:
-        # print(node)
-        if node != -1:
-            markNodeSliceAdd(top, node[0], tempSlice.id)
-            if updateType[i] == 0:
-                top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[0], updateType[i], tempSlice.level)
-                tempSlice.DU = exisNode[i]
-            if updateType[i] == 1:
-                top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[1], updateType[i], tempSlice.level)
-                tempSlice.CU = exisNode[i]
-            if updateType[i] == 2:
-                top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[2], updateType[i], tempSlice.level)
-                tempSlice.MEC = exisNode[i]
-        i += 1
+            pathCUMe = []
+            if pathStart == 200:
+                pathCUMe = [200]
+            if pathStart == 105:
+                pathCUMe = [105,200]
+            if pathStart == 104:
+                pathCUMe = [104,105,200]
+            if pathStart == 102:
+                pathCUMe = [102,103,104,105,200]
+            if pathStart == 101:
+                pathCUMe = [101,102,103,104,105,200]
+            if pathStart < 100:
+                pathCUMe = [103,104,105,200]
+            # pathCUMe = nx.shortest_path(G, pathStart, 200, weight='weight')
+            mecNodeList = searchNode(tempSlice.transLatency[2], pathCUMe)
+            mecNodeList = nodeQuene(top, mecNodeList, 2, tempSlice.type)
+            if migrate_place[2] not in mecNodeList:
+                markBp(top, 0, tempSlice)
+                return 0
+            else:
+                mecNodeList = [migrate_place[2]]
+            serverMEC = None
+            bpFlag = 0
+            for nodeMEC in mecNodeList:
+                if nodeMEC is not None:
+                    if nodeMEC != dosId:
+                        serverMEC, pathbront, lightback, bpFlag = nodeLinkSearch(exisNode, exisWave, pathStart, G, top,
+                                                                                 nodeMEC, tempSlice, 2,
+                                                                                 tempSlice.bandwidth[2])
+                        if serverMEC: break
+            if not serverMEC:
+                # 阻塞MEC
+                markBp(top, bpFlag, tempSlice)
+                return 0
+            exisNode.append(serverMEC)
+            exisWave.append(pathbront)
+            totalPath.append(lightback)
+        elif tempSlice.CU[0] == dosId and tempSlice.MEC[0] != dosId:
+            # upadte b link
+            # search link
+            if serverCU is None:
+                pass
+            else:
+                updateType.append(2)
+                backwave, backpath = linkSearch(exisWave, serverCU[0], G, top, tempSlice.MEC[0], tempSlice.bandwidth[2])
+                if backwave == -10:
+                    # print('403, block for link')
+                    markBp(top, 1, tempSlice)
+                    return 0
+                else:
+                    # updateLink.append(1)
+                    exisNode.append(-1)
+                    exisWave.append(backwave)
+                    totalPath.append(backpath)
 
-    # print('========节点====更新后',G.nodes[exisNode[0][0]])
+        i = 0
+        # print('DU,CU,MEC node:')
+        # print('=======节点=====更新前',G.nodes[exisNode[0][0]])
+        for node in exisNode:
+            # print(node)
+            if node != -1:
+                markNodeSliceAdd(top, node[0], tempSlice.id)
+                if updateType[i] == 0:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[0], updateType[i], tempSlice.level)
+                    tempSlice.DU = exisNode[i]
+                if updateType[i] == 1:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[1], updateType[i], tempSlice.level)
+                    tempSlice.CU = exisNode[i]
+                if updateType[i] == 2:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[2], updateType[i], tempSlice.level)
+                    tempSlice.MEC = exisNode[i]
+            i += 1
 
-    # print('f,m,b paht:')
-    # for i in range(len(updateType)):
-    # print(totalPath[i],exisWave[i])
-    # print('arrive： link before ')
-    for j in range(len(updateType)):
-        if updateType[j] == 0:
-            top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[0])
-            tempSlice.front = [totalPath[j], exisWave[j], tempSlice.bandwidth[0]]
-        if updateType[j] == 1:
-            top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[1])
-            tempSlice.mid = [totalPath[j], exisWave[j], tempSlice.bandwidth[1]]
-        if updateType[j] == 2:
-            top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[2])
-            tempSlice.back = [totalPath[j], exisWave[j], tempSlice.bandwidth[2]]
-    return 1
+        # print('========节点====更新后',G.nodes[exisNode[0][0]])
+
+        # print('f,m,b paht:')
+        # for i in range(len(updateType)):
+        # print(totalPath[i],exisWave[i])
+        # print('arrive： link before ')
+        for j in range(len(updateType)):
+            if updateType[j] == 0:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[0])
+                tempSlice.front = [totalPath[j], exisWave[j], tempSlice.bandwidth[0]]
+            if updateType[j] == 1:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[1])
+                tempSlice.mid = [totalPath[j], exisWave[j], tempSlice.bandwidth[1]]
+            if updateType[j] == 2:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[2])
+                tempSlice.back = [totalPath[j], exisWave[j], tempSlice.bandwidth[2]]
+        return 1
 
 
-def migrate(G, top, tempSlice, dosId, mnOrAe):
+def migrate_left(G, top, tempSlice, dosId, mnOrAe):
     # (1,1,5)
 
     # mnorAe == 1 Mn, 0 - ae
@@ -786,6 +1050,7 @@ def migrate(G, top, tempSlice, dosId, mnOrAe):
     totalPath = []
     updateType = []  # 统计哪些更新了
     serverDU = None
+    left_flag = -1
     if tempSlice.DU[0] == dosId:
         # ===============if ！=   du, cu(DOS), mec// cu正常, mec节点
         # 寻找节点和链路资源，并占位
@@ -803,12 +1068,13 @@ def migrate(G, top, tempSlice, dosId, mnOrAe):
                                                                          tempSlice, 0, tempSlice.bandwidth[0])
                 if serverDU: break
         if not serverDU:
-            markBp(top, bpFlag, tempSlice)
-            return 0
-
-        exisNode.append(serverDU)
-        exisWave.append(pathfront)
-        totalPath.append(lightfront)
+            # markBp(top, bpFlag, tempSlice)
+            left_flag = 1
+            # return 0
+        else:
+            exisNode.append(serverDU)
+            exisWave.append(pathfront)
+            totalPath.append(lightfront)
     serverCU = None
     if tempSlice.CU[0] == dosId:
         # 寻找节点和链路资源，并占位
@@ -828,11 +1094,13 @@ def migrate(G, top, tempSlice, dosId, mnOrAe):
                                                                        tempSlice, 1, tempSlice.bandwidth[1])
                 if serverCU: break
         if not serverCU:
-            markBp(top, bpFlag, tempSlice)
-            return 0
-        exisNode.append(serverCU)
-        exisWave.append(pathmront)
-        totalPath.append(lightmid)
+            left_flag = 1
+            # markBp(top, bpFlag, tempSlice)
+            # return 0
+        else:
+            exisNode.append(serverCU)
+            exisWave.append(pathmront)
+            totalPath.append(lightmid)
     elif tempSlice.DU[0] == dosId and tempSlice.CU[0] != dosId:
         # upadte b link
         # search link
@@ -840,7 +1108,8 @@ def migrate(G, top, tempSlice, dosId, mnOrAe):
         midwave, midpath = linkSearch(exisWave, serverDU[0], G, top, tempSlice.CU[0], tempSlice.bandwidth[1])
         if midwave == -10:
             # print('366, block for link')
-            return 0
+            left_flag = 1
+            # return 0
         else:
             # updateLink.append(1)
             exisNode.append(-1)
@@ -849,82 +1118,246 @@ def migrate(G, top, tempSlice, dosId, mnOrAe):
 
     if tempSlice.MEC[0] == dosId:
         # 寻找节点和链路资源，并占位，更新
-        updateType.append(2)
-        if tempSlice.CU[0] == dosId:
-            pathStart = serverCU[0]
+        if left_flag == 1:
+            pass
         else:
-            pathStart = tempSlice.CU[0]
+            updateType.append(2)
+            if tempSlice.CU[0] == dosId:
+                pathStart = serverCU[0]
+            else:
+                pathStart = tempSlice.CU[0]
 
-        pathCUMeBefore = nx.shortest_path(G, pathStart, 200, weight='weight')
-        pathCUMe = pathFilter(pathCUMeBefore, mnOrAe)
-        # pathCUMe = nx.shortest_path(G, pathStart, 200, weight='weight')
-        mecNodeList = searchNode(tempSlice.transLatency[2], pathCUMe)
-        mecNodeList = nodeQuene(top, mecNodeList, 2, tempSlice.type)
-        serverMEC = None
-        bpFlag = 0
-        for nodeMEC in mecNodeList:
-            if nodeMEC != dosId:
-                serverMEC, pathbront, lightback, bpFlag = nodeLinkSearch(exisNode, exisWave, pathStart, G, top, nodeMEC,
-                                                                         tempSlice, 2, tempSlice.bandwidth[2])
-                if serverMEC: break
-        if not serverMEC:
-            # 阻塞MEC
-            markBp(top, bpFlag, tempSlice)
-            return 0
-        exisNode.append(serverMEC)
-        exisWave.append(pathbront)
-        totalPath.append(lightback)
+            pathCUMeBefore = nx.shortest_path(G, pathStart, 200, weight='weight')
+            pathCUMe = pathFilter(pathCUMeBefore, mnOrAe)
+            # pathCUMe = nx.shortest_path(G, pathStart, 200, weight='weight')
+            mecNodeList = searchNode(tempSlice.transLatency[2], pathCUMe)
+            mecNodeList = nodeQuene(top, mecNodeList, 2, tempSlice.type)
+            serverMEC = None
+            bpFlag = 0
+            for nodeMEC in mecNodeList:
+                if nodeMEC != dosId:
+                    serverMEC, pathbront, lightback, bpFlag = nodeLinkSearch(exisNode, exisWave, pathStart, G, top, nodeMEC,
+                                                                             tempSlice, 2, tempSlice.bandwidth[2])
+                    if serverMEC: break
+            if not serverMEC:
+                # 阻塞MEC
+                left_flag = 1
+                # markBp(top, bpFlag, tempSlice)
+                # return 0
+            else:
+                exisNode.append(serverMEC)
+                exisWave.append(pathbront)
+                totalPath.append(lightback)
     elif tempSlice.CU[0] == dosId and tempSlice.MEC[0] != dosId:
         # upadte b link
         # search link
-        updateType.append(2)
-        backwave, backpath = linkSearch(exisWave, serverCU[0], G, top, tempSlice.MEC[0], tempSlice.bandwidth[2])
-        if backwave == -10:
-            # print('403, block for link')
-            markBp(top, 1, tempSlice)
-            return 0
+        if serverCU is None:
+            pass
         else:
-            # updateLink.append(1)
-            exisNode.append(-1)
-            exisWave.append(backwave)
-            totalPath.append(backpath)
+            updateType.append(2)
+            backwave, backpath = linkSearch(exisWave, serverCU[0], G, top, tempSlice.MEC[0], tempSlice.bandwidth[2])
+            if backwave == -10:
+                # print('403, block for link')
+                left_flag = 1
 
-    i = 0
-    # print('DU,CU,MEC node:')
-    # print('=======节点=====更新前',G.nodes[exisNode[0][0]])
-    for node in exisNode:
-        # print(node)
-        if node != -1:
-            markNodeSliceAdd(top, node[0], tempSlice.id)
-            if updateType[i] == 0:
-                top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[0], updateType[i], tempSlice.level)
-                tempSlice.DU = exisNode[i]
-            if updateType[i] == 1:
-                top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[1], updateType[i], tempSlice.level)
-                tempSlice.CU = exisNode[i]
-            if updateType[i] == 2:
-                top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[2], updateType[i], tempSlice.level)
-                tempSlice.MEC = exisNode[i]
-        i += 1
+                # markBp(top, 1, tempSlice)
+                # return 0
+            else:
+                # updateLink.append(1)
+                exisNode.append(-1)
+                exisWave.append(backwave)
+                totalPath.append(backpath)
+    if left_flag == -1:
+        i = 0
+        # print('DU,CU,MEC node:')
+        # print('=======节点=====更新前',G.nodes[exisNode[0][0]])
+        for node in exisNode:
+            # print(node)
+            if node != -1:
+                markNodeSliceAdd(top, node[0], tempSlice.id)
+                if updateType[i] == 0:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[0], updateType[i], tempSlice.level)
+                    tempSlice.DU = exisNode[i]
+                if updateType[i] == 1:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[1], updateType[i], tempSlice.level)
+                    tempSlice.CU = exisNode[i]
+                if updateType[i] == 2:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[2], updateType[i], tempSlice.level)
+                    tempSlice.MEC = exisNode[i]
+            i += 1
 
-    # print('========节点====更新后',G.nodes[exisNode[0][0]])
+        # print('========节点====更新后',G.nodes[exisNode[0][0]])
 
-    # print('f,m,b paht:')
-    # for i in range(len(updateType)):
-    # print(totalPath[i],exisWave[i])
-    # print('arrive： link before ')
-    for j in range(len(updateType)):
-        if updateType[j] == 0:
-            top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[0])
-            tempSlice.front = [totalPath[j], exisWave[j], tempSlice.bandwidth[0]]
-        if updateType[j] == 1:
-            top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[1])
-            tempSlice.mid = [totalPath[j], exisWave[j], tempSlice.bandwidth[1]]
-        if updateType[j] == 2:
-            top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[2])
-            tempSlice.back = [totalPath[j], exisWave[j], tempSlice.bandwidth[2]]
-    return 1
+        # print('f,m,b paht:')
+        # for i in range(len(updateType)):
+        # print(totalPath[i],exisWave[i])
+        # print('arrive： link before ')
+        for j in range(len(updateType)):
+            if updateType[j] == 0:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[0])
+                tempSlice.front = [totalPath[j], exisWave[j], tempSlice.bandwidth[0]]
+            if updateType[j] == 1:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[1])
+                tempSlice.mid = [totalPath[j], exisWave[j], tempSlice.bandwidth[1]]
+            if updateType[j] == 2:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[2])
+                tempSlice.back = [totalPath[j], exisWave[j], tempSlice.bandwidth[2]]
+        return 1
+    else:
+        #right
+        exisNode = []
+        exisWave = []
+        totalPath = []
+        updateType = []  # 统计哪些更新了
+        serverDU = None
+        if tempSlice.DU[0] == dosId:
+            # ===============if ！=   du, cu(DOS), mec// cu正常, mec节点
+            # 寻找节点和链路资源，并占位
+            updateType.append(0)
+            AE = math.ceil(1.0 * tempSlice.list_AAU[0] / inputs.num_BS)
 
+            pathAeMeBefore = nx.shortest_path(G, AE, 200, weight='weight')
+            pathAeMe = pathFilter(pathAeMeBefore, mnOrAe)
+            duNodeList = searchNode(tempSlice.transLatency[0], pathAeMe)
+            duNodeList = nodeQuene(top, duNodeList, 0, tempSlice.type)
+            bpFlag = 0
+            for nodeDU in duNodeList:
+                if nodeDU != dosId:
+                    serverDU, pathfront, lightfront, bpFlag = nodeLinkSearch(exisNode, exisWave, AE, G, top, nodeDU,
+                                                                             tempSlice, 0, tempSlice.bandwidth[0])
+                    if serverDU: break
+            if not serverDU:
+                markBp(top, bpFlag, tempSlice)
+                return 0
+
+            exisNode.append(serverDU)
+            exisWave.append(pathfront)
+            totalPath.append(lightfront)
+        serverCU = None
+        if tempSlice.CU[0] == dosId:
+            # 寻找节点和链路资源，并占位
+            updateType.append(1)
+            if tempSlice.DU[0] == dosId:
+                pathStart = serverDU[0]
+            else:
+                pathStart = tempSlice.DU[0]
+            pathDUMe = [103,104,105,200]
+            cuNodeList = searchNode(tempSlice.transLatency[1], pathDUMe)
+            cuNodeList = nodeQuene(top, cuNodeList, 1, tempSlice.type)
+            bpFlag = 0
+            for nodeCU in cuNodeList:
+                if nodeCU != dosId:
+                    serverCU, pathmront, lightmid, bpFlag = nodeLinkSearch(exisNode, exisWave, pathStart, G, top, nodeCU,
+                                                                           tempSlice, 1, tempSlice.bandwidth[1])
+                    if serverCU: break
+            if not serverCU:
+                markBp(top, bpFlag, tempSlice)
+                return 0
+            exisNode.append(serverCU)
+            exisWave.append(pathmront)
+            totalPath.append(lightmid)
+        elif tempSlice.DU[0] == dosId and tempSlice.CU[0] != dosId:
+            # upadte b link
+            # search link
+            updateType.append(1)
+            midwave, midpath = linkSearch(exisWave, serverDU[0], G, top, tempSlice.CU[0], tempSlice.bandwidth[1])
+            if midwave == -10:
+                # print('366, block for link')
+                return 0
+            else:
+                # updateLink.append(1)
+                exisNode.append(-1)
+                exisWave.append(midwave)
+                totalPath.append(midpath)
+
+        if tempSlice.MEC[0] == dosId:
+            # 寻找节点和链路资源，并占位，更新
+            updateType.append(2)
+            if tempSlice.CU[0] == dosId:
+                pathStart = serverCU[0]
+            else:
+                pathStart = tempSlice.CU[0]
+
+            pathCUMe = []
+            if pathStart == 200:
+                pathCUMe = [200]
+            if pathStart == 105:
+                pathCUMe = [105,200]
+            if pathStart == 104:
+                pathCUMe = [104,105,200]
+            if pathStart == 102:
+                pathCUMe = [102,103,104,105,200]
+            if pathStart == 101:
+                pathCUMe = [101,102,103,104,105,200]
+            if pathStart < 100:
+                pathCUMe = [103,104,105,200]
+            # pathCUMe = nx.shortest_path(G, pathStart, 200, weight='weight')
+            mecNodeList = searchNode(tempSlice.transLatency[2], pathCUMe)
+            mecNodeList = nodeQuene(top, mecNodeList, 2, tempSlice.type)
+            serverMEC = None
+            bpFlag = 0
+            for nodeMEC in mecNodeList:
+                if nodeMEC != dosId:
+                    serverMEC, pathbront, lightback, bpFlag = nodeLinkSearch(exisNode, exisWave, pathStart, G, top, nodeMEC,
+                                                                             tempSlice, 2, tempSlice.bandwidth[2])
+                    if serverMEC: break
+            if not serverMEC:
+                # 阻塞MEC
+                markBp(top, bpFlag, tempSlice)
+                return 0
+            exisNode.append(serverMEC)
+            exisWave.append(pathbront)
+            totalPath.append(lightback)
+        elif tempSlice.CU[0] == dosId and tempSlice.MEC[0] != dosId:
+            # upadte b link
+            # search link
+            updateType.append(2)
+            backwave, backpath = linkSearch(exisWave, serverCU[0], G, top, tempSlice.MEC[0], tempSlice.bandwidth[2])
+            if backwave == -10:
+                # print('403, block for link')
+                markBp(top, 1, tempSlice)
+                return 0
+            else:
+                # updateLink.append(1)
+                exisNode.append(-1)
+                exisWave.append(backwave)
+                totalPath.append(backpath)
+
+        i = 0
+        # print('DU,CU,MEC node:')
+        # print('=======节点=====更新前',G.nodes[exisNode[0][0]])
+        for node in exisNode:
+            # print(node)
+            if node != -1:
+                markNodeSliceAdd(top, node[0], tempSlice.id)
+                if updateType[i] == 0:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[0], updateType[i], tempSlice.level)
+                    tempSlice.DU = exisNode[i]
+                if updateType[i] == 1:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[1], updateType[i], tempSlice.level)
+                    tempSlice.CU = exisNode[i]
+                if updateType[i] == 2:
+                    top.updateServerVM(G, node[0], node[1], node[2], -tempSlice.resource[2], updateType[i], tempSlice.level)
+                    tempSlice.MEC = exisNode[i]
+            i += 1
+
+        # print('========节点====更新后',G.nodes[exisNode[0][0]])
+
+        # print('f,m,b paht:')
+        # for i in range(len(updateType)):
+        # print(totalPath[i],exisWave[i])
+        # print('arrive： link before ')
+        for j in range(len(updateType)):
+            if updateType[j] == 0:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[0])
+                tempSlice.front = [totalPath[j], exisWave[j], tempSlice.bandwidth[0]]
+            if updateType[j] == 1:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[1])
+                tempSlice.mid = [totalPath[j], exisWave[j], tempSlice.bandwidth[1]]
+            if updateType[j] == 2:
+                top.updateLightPath(G, totalPath[j], exisWave[j], -tempSlice.bandwidth[2])
+                tempSlice.back = [totalPath[j], exisWave[j], tempSlice.bandwidth[2]]
+        return 1
 
 def releaseSlice(G, top, dosId, sliceDic, sliceId):
     tempSlice = sliceDic[sliceId]
@@ -965,19 +1398,53 @@ def releaseSlice(G, top, dosId, sliceDic, sliceId):
 
 
 def dealSlice(G, top, dosId, sliceDic, sliceList, currentTime):
+    ss_action = []
+    #fl_action = []
+    #a_action = []
+    #slice_info_all = []
+    slice_info_ss = []
+    #slice_info_fl = []
     for id in sliceList:
         res = 2
         top.totalSliceNumDosed += 1
         tempSlice = sliceDic[id]
         info = -1
         # 迁MN
-        info = migrate(G, top, tempSlice, dosId, 1)
+        info = migrate_left(G, top, tempSlice, dosId, 1)
         if info == 0:
             top.blockForDos += 1
             # 迁移阻塞，释放并标记资源
             releaseSlice(G, top, dosId, sliceDic, id)
         reward = countReward(info, tempSlice, currentTime)
         lossCount(top, tempSlice, reward, res, info)
+
+
+
+        if info != 0:
+            slice_info_ss.append(tempSlice.type)
+            # mara action
+            one_action = []
+            if tempSlice.DU[0] > 100:
+                one_action.append(tempSlice.DU[0])
+            else:
+                one_action.append(-1)
+            if tempSlice.CU[0] > 100:
+                one_action.append(tempSlice.CU[0])
+            else:
+                one_action.append(-1)
+            if tempSlice.MEC[0] > 100:
+                one_action.append(tempSlice.MEC[0])
+            else:
+                one_action.append(-1)
+            ss_action.append(copy.deepcopy(one_action))
+
+    fp = open('./action_ss_base.dat', 'a')
+    fp.write(str(ss_action) + '\n')
+    fp.write('slice_type: ' + str(slice_info_ss) + '\n')
+    fp.close()
+
+
+
     return top.blockForDos / top.totalSliceNumDosed
 
 
@@ -1115,19 +1582,19 @@ def getNodeLinkScore(G, nodeId):
     res = 0
 
     if nodeId == 101:
-        res = min(G[101][102]['pathScore'], G[102][101]['pathScore'])  # 检查score值
+        res = min(G[101][102]['pathScore'], G[102][101]['pathScore'])/80  # 检查score值
     if nodeId == 102:
-        res = min(G[102][103]['pathScore'], G[103][102]['pathScore'])  # 检查score值
+        res = min(G[102][103]['pathScore'], G[103][102]['pathScore'])/80  # 检查score值
     if nodeId == 103:
-        res = min(G[103][104]['pathScore'], G[104][103]['pathScore'])  # 检查score值
+        res = min(G[103][104]['pathScore'], G[104][103]['pathScore'])/80  # 检查score值
 
     if nodeId == 104:
-        res = min(G[104][105]['pathScore'], G[105][104]['pathScore'])  # 检查score值
+        res = min(G[104][105]['pathScore'], G[105][104]['pathScore'])/80  # 检查score值
 
     if nodeId == 105:
-        res = min(G[105][200]['pathScore'], G[200][105]['pathScore'])  # 检查score值
+        res = min(G[105][200]['pathScore'], G[200][105]['pathScore'])/80  # 检查score值
 
     if nodeId == 200:
-        res = min(G[200][101]['pathScore'], G[101][200]['pathScore'])  # 检查score值
+        res = min(G[200][101]['pathScore'], G[101][200]['pathScore'])/80  # 检查score值
 
     return res

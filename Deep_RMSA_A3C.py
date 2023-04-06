@@ -1,5 +1,8 @@
 import random
 
+import logging
+logging.basicConfig(filename="rl.log", level=logging.INFO,format='%(asctime)s %(levelname)s %(name)s %(message)s',filemode='w')
+
 import numpy as np
 import tensorflow as tf
 
@@ -27,7 +30,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # -----------------------------------------------------------
 
 
-n_actions = 190
+n_actions = 129
 
 # we do not input ttl
 x_dim_p = 55  # node number
@@ -40,7 +43,7 @@ max_cpu = 4
 
 gamma = 0.95  # penalty on future reward
 batch_size = 50  # probably smaller value, e.g., 50, would be better for higher blocking probability (see JLT)
-total_epoNum = 2500
+total_epoNum = 10000
 
 load_model = False  # True
 model_path = 'model'
