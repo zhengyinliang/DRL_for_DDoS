@@ -111,11 +111,11 @@ def markFunction(dos_node, dos_bw, slice_info_ss, total_step,ss_action, res_path
     # bp total block
 
     fp = open('./' + res_path + '/block_dos_for_node.dat', 'a')
-    fp.write(str(dos_node) + '\n')
+    fp.write('%f\n' % dos_node)
     fp.close()
 
     fp = open('./' + res_path + '/block_dos_for_bw.dat', 'a')
-    fp.write(str(dos_bw) + '\n')
+    fp.write('%f\n' % dos_bw)
     fp.close()
 
     fp = open('./' + res_path + '/action_ss.dat', 'a')
