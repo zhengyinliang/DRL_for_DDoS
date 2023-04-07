@@ -264,8 +264,8 @@ class DeepRMSA_Agent():
 
                                     else:
                                         # 取概率最大的action，返回[  ]值最大的index
-                                        #action_id = np.argmax(pp)
-                                        action_id = np.random.choice(action_onehot, p=pp)
+                                        action_id = np.argmax(pp)
+                                        #action_id = np.random.choice(action_onehot, p=pp)
 
                                     s_, r, done, b = self.env.step(action_id, dosId, ep_t, currentTime)
 

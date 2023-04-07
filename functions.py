@@ -19,17 +19,7 @@ ACTION = []
 count = 0
 
 temp = [-1, -1, -1]
-for i in range(1, 6):
-    temp[0] = i
-    for j in range(1, 6):
-        temp[1] = j
-        for k in range(1, 6):
-            temp[2] = k
-            if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
-                pass
-            else:
-                ACTION.append(copy.copy(temp))
-                count += 1
+
 
 temp = [-1, -1, -1]
 for i in range(1, 6):
@@ -60,25 +50,6 @@ for i in range(1, 6):
         ACTION.append(copy.copy(temp))
         count += 1
 
-temp = [-1, -1, -1]
-for i in range(1, 6):
-    temp[0] = i
-    if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
-        pass
-    else:
-        ACTION.append(copy.copy(temp))
-        count += 1
-
-temp = [-1, -1, -1]
-for i in range(1, 6):
-    temp[0] = i
-    for j in range(1, 6):
-        temp[1] = j
-        if (temp[2] != 3 or temp[2] != -1) and (temp[0] == 3 or temp[1] == 3):
-            pass
-        else:
-            ACTION.append(copy.copy(temp))
-            count += 1
 
 ACTION_DIC = {1: 101, 2: 102, 3: 200, 4: 104, 5: 105}
 
@@ -221,11 +192,7 @@ def markFunction(dos_node, dos_bw, slice_info_ss, total_step,ss_action, res_path
 
 
 def draw_res(res_path):
-    name_list1 = ['DosBp', 'migLoss', 'blockLoss', 'reward']
-
-    name_list3 = ['bpBeforeDos', 'DosBP', 'bpAfterDos', 'blockLoss']
-
-    name_list2 = ['migProbal1', 'migProbal2', 'migProbal3', 'migProbal4']
+    name_list1 = ['DosBp', 'reward','bpBeforeDos','bpAfterDos']
 
     name_list = ['DosBp', 'entropy', 'policy_loss', 'value_loss']
 
@@ -273,8 +240,6 @@ def draw_res(res_path):
         # plt.show()
 
     draw(res_path, name_list1, "loss")
-    draw(res_path, name_list2, "mig")
-    draw(res_path, name_list3, "bp")
     draw(res_path, name_list, "value")
 
 
