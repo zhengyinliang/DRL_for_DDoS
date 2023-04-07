@@ -43,7 +43,7 @@ max_cpu = 4
 
 gamma = 0.95  # penalty on future reward
 batch_size = 50  # probably smaller value, e.g., 50, would be better for higher blocking probability (see JLT)
-total_epoNum = 10
+total_epoNum = 2500
 
 load_model = False  # True
 model_path = 'model'
